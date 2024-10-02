@@ -57,31 +57,62 @@ class PredictionPipeline:
             raise CustomException(e,sys)
         
 
+    # def get_predicted_dataframe(self, input_dataframe_path: pd.DataFrame):
+
+    #     try:
+
+    #         prediction_column_name : str = TARGET_COLUMN
+    #         input_dataframe: pd.DataFrame = pd.read_csv(input_dataframe_path)
+
+    #         input_dataframe = input_dataframe.drop(columns="Unnamed: 0") if "Unnamed: 0" in input_dataframe.columns else input_dataframe
+    #         predictions = self.predict(input_dataframe)
+
+    #         input_dataframe[prediction_column_name] = [pred for pred in predictions]
+
+    #         target_column_mapping = {0:'bad',1: 'good'}
+
+    #         input_dataframe[prediction_column_name] = input_dataframe[prediction_column_name].map(target_column_mapping)
+            
+    #         os.makedirs(self.prediction_pipeline_config.prediction_output_dirname, exist_ok=True)
+
+    #         input_dataframe.to_csv(self.prediction_pipeline_config.prediction_file_path, index=False)
+
+    #         logging.info("predictions completed")
+
+    #     except Exception as e:
+    #         raise CustomException(e,sys) from e
+        
     def get_predicted_dataframe(self, input_dataframe_path: pd.DataFrame):
-
         try:
-
-            prediction_column_name : str = TARGET_COLUMN
+            # Define the prediction column name and load the input dataframe
+            prediction_column_name: str = TARGET_COLUMN
             input_dataframe: pd.DataFrame = pd.read_csv(input_dataframe_path)
 
-            input_dataframe = input_dataframe.drop(columns="Unnamed: 0") if "Unnamed: 0" in input_dataframe.columns else input_dataframe
+            # Remove any unwanted columns like 'Unnamed: 0' if present
+            if "Unnamed: 0" in input_dataframe.columns:
+                input_dataframe = input_dataframe.drop(columns="Unnamed: 0")
+            
+            # Check if the 'Good/Bad' column exists, and drop it if necessary
+            if "Good/Bad" in input_dataframe.columns:
+                input_dataframe = input_dataframe.drop(columns="Good/Bad")
+
+            # Predict using the cleaned data
             predictions = self.predict(input_dataframe)
 
+            # Map predictions to target labels (e.g., 0 -> 'bad', 1 -> 'good')
             input_dataframe[prediction_column_name] = [pred for pred in predictions]
-
-            target_column_mapping = {0:'bad',1: 'good'}
-
+            target_column_mapping = {0: 'bad', 1: 'good'}
             input_dataframe[prediction_column_name] = input_dataframe[prediction_column_name].map(target_column_mapping)
-            
-            os.makedirs(self.prediction_pipeline_config.prediction_output_dirname, exist_ok=True)
 
+            # Save predictions to the specified output file
+            os.makedirs(self.prediction_pipeline_config.prediction_output_dirname, exist_ok=True)
             input_dataframe.to_csv(self.prediction_pipeline_config.prediction_file_path, index=False)
 
-            logging.info("predictions completed")
+            logging.info("Predictions completed successfully.")
 
         except Exception as e:
-            raise CustomException(e,sys) from e
-        
+            raise CustomException(e, sys) from e
+
     def run_pipeline(self):
         try:
             input_csv_path = self.save_input_files()

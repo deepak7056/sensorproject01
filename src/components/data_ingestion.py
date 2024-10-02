@@ -14,7 +14,7 @@ from dataclasses import dataclass
 class DataIngestionConfig:
  artifact_folder: str = os.path.join(artifact_folder)
 
- class DataIngestion:
+class DataIngestion:
     def __init__(self):
         self.data_ingestion_config = DataIngestionConfig()
         self.utils = MainUtils()
@@ -35,20 +35,20 @@ class DataIngestionConfig:
 
             return df
         except Exception as e:
-           raise CustomException(e, sys)
+            raise CustomException(e, sys)
         
     def export_data_info_feature_store_file_path(self)-> pd.DataFrame:
-       
+        
         try:
-           
+            
             logging.info(f"Exporting data from mongodb")
-            raw_file_path = self.data_ingestion.config.artifact_folder
+            raw_file_path = self.data_ingestion_config.artifact_folder
 
             os.makedirs(raw_file_path, exist_ok=True)
 
             sensor_data = self.export_collection_as_dataframe(
-               collection_name= MONGO_COLLECTION_NAME,
-               db_name= MONGO_DATABASE_NAME
+                collection_name= MONGO_COLLECTION_NAME,
+                db_name= MONGO_DATABASE_NAME
             )
 
             logging.info(f"saving exported data into feature store file path :{raw_file_path}")
@@ -63,7 +63,7 @@ class DataIngestionConfig:
             raise CustomException(e, sys)
 
     def initiate_data_ingestion(self) -> Path:
-       
+        
         logging.info("Entered initaited_data_ingestion method of data_integration class")
 
         try:
